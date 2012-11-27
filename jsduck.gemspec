@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.5"
 
-  s.name = 'jsduck'
-  s.version = '4.4.1'
-  s.date = '2012-11-20'
-  s.summary = "Simple JavaScript Duckumentation generator"
+  s.name = 'ckeditor-jsduck'
+  s.version = '1.0.0'
+  s.date = '2012-12-26'
+  s.summary = "Simple JavaScript Duckumentation generator (customized for CKEditor)"
   s.description = "Documentation generator for Sencha JS frameworks"
   s.homepage = "https://github.com/senchalabs/jsduck"
   s.authors = ["Rene Saarsoo", "Nick Poulden"]
@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   # Add files not in git
   s.files += Dir['template-min/**/*']
 
-  s.executables = ["jsduck"]
+  s.executables = ["ckeditor-jsduck"]
 
   s.add_dependency 'rdiscount'
   s.add_dependency 'json'

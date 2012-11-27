@@ -183,7 +183,7 @@ class JsDuckRunner
 
   def run
     # Pass multiple arguments to system, so we'll take advantage of the built-in escaping
-    system(*["ruby", "bin/jsduck"].concat(@options))
+    system(*["ruby", "bin/ckeditor-jsduck"].concat(@options))
   end
 end
 
