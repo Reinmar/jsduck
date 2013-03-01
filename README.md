@@ -11,8 +11,8 @@ the old [ext-doc][] was. It is used by Sencha to document [Ext JS
 products.
 
 The highlights of JSDuck are [Markdown][] support and keeping you DRY
-by inferring a lot of information from code.  Read the [Guide][] for
-full overview.
+by inferring a lot of information from code.  Read the
+[documentation][] for full overview.
 
 **New to JSDuck?** Watch [introductory talk by Nick Poulden][video]:
 
@@ -23,8 +23,8 @@ full overview.
 [Markdown]: http://daringfireball.net/projects/markdown/
 [ext4-docs]: http://docs.sencha.com/ext-js/4-0/
 [touch2-docs]: http://docs.sencha.com/touch/2-0/
-[other-docs]: http://docs.sencha.com/ext-js/4-0/
-[Guide]: https://github.com/senchalabs/jsduck/wiki/Guide
+[other-docs]: http://docs.sencha.com/
+[documentation]: https://github.com/senchalabs/jsduck/wiki
 [video]: http://vimeo.com/33465319
 
 Getting it
@@ -64,7 +64,7 @@ most sensible place to put it). Now you're ready to install JSDuck:
     > gem install jsduck
 
 [RVM]: https://rvm.io/
-[download page]: https://github.com/senchalabs/jsduck/downloads
+[download page]: https://sourceforge.net/projects/jsduck/files/
 [libs download]: https://github.com/stereobooster/therubyracer/downloads
 
 Usage
@@ -112,21 +112,15 @@ directories:
 Note that the resulting documentation will only contain the API
 documentation.  Guides, videos and examples will not be present.
 These can be added using more command line options as explained in the
-[Advanced Usage][adv] section of wiki.
-
-[adv]: https://github.com/senchalabs/jsduck/wiki/Advanced-Usage
+[documentation][].
 
 
 Documenting your code
 ---------------------
 
-For quick overview read the [Guide][] and take a look at [example.js][example].
-Follow links in the guide to digg into the details.
-
-Looking for specific @tag? Take a look at the [whole list of supported tags][tags].
+Read the [documentation][] and take a look at [example.js][example].
 
 [example]: https://github.com/senchalabs/jsduck/blob/master/opt/example.js
-[tags]: https://github.com/senchalabs/jsduck/wiki/Tags
 
 
 Hacking it
@@ -141,6 +135,7 @@ Who's using JSDuck?
 - Appcelerator [Titanium SDK](http://docs.appcelerator.com/titanium/2.0/index.html)
 - AT&T [API Platform SDK for HTML5](https://code-api-att.com/SenchaSdk20Drop23Docs/)
 - Bryntum [Siesta unit testing framework](http://www.bryntum.com/products/siesta/docs/)
+- [CKEditor](http://docs.ckeditor.com)
 - [GeoExt 2](https://github.com/geoext/geoext2)
 - Rally Software [Rally App SDK](https://rally1.rallydev.com/apps/2.0p/doc/)
 - [Sencha](http://docs.sencha.com) - obviously :)
@@ -171,6 +166,8 @@ Katherine Chu,
 [burnnat](https://github.com/burnnat),
 [vjetteam](https://github.com/vjetteam),
 [Chris Westbrook](https://github.com/cnstaging),
+[Scott Whittaker](https://github.com/scottrobertwhittaker),
+[Timo Tijhof](https://github.com/Krinkle),
 and many-many others who reported bugs, submitted patches, and
 provided a lot of useful input.
 

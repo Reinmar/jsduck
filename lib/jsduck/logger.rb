@@ -16,9 +16,11 @@ module JsDuck
         [:global, "Member doesn't belong to any class"],
         [:inheritdoc, "@inheritdoc referring to unknown class or member"],
         [:extend, "@extend/mixin/requires/uses referring to unknown class"],
+        [:tag, "Use of unsupported @tag"],
         [:link, "{@link} to unknown class or member"],
         [:link_ambiguous, "{@link} is ambiguous"],
         [:link_auto, "Auto-detected link to unknown class or member"],
+        [:html, "Unclosed HTML tag."],
 
         [:alt_name, "Name used as both classname and alternate classname"],
         [:name_missing, "Member or parameter has no name"],

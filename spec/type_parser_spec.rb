@@ -34,6 +34,10 @@ describe JsDuck::TypeParser do
     parse('42').should == true
   end
 
+  it "matches negative number literal" do
+    parse('-6').should == true
+  end
+
   it "matches float number literal" do
     parse('3.14').should == true
   end
@@ -321,8 +325,7 @@ describe JsDuck::TypeParser do
 
     it "links primitive types to classes" do
       relations = JsDuck::Relations.new([JsDuck::Class.new({:name => "String"})])
-      doc_formatter = JsDuck::DocFormatter.new
-      doc_formatter.relations = relations
+      doc_formatter = JsDuck::DocFormatter.new(relations)
       p = JsDuck::TypeParser.new(relations, doc_formatter)
       p.parse("string")
       p.out.should == '<a href="String">string</a>'

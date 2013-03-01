@@ -39,6 +39,7 @@ module JsDuck
     attr_accessor :tests
     attr_accessor :comments_url
     attr_accessor :comments_domain
+    attr_accessor :ignore_html
 
     # Debugging
     attr_accessor :template_dir
@@ -67,7 +68,15 @@ module JsDuck
         "Array",
         "Arguments",
         "Date",
+        # JavaScript builtin error classes
+        # https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Error
         "Error",
+        "EvalError",
+        "RangeError",
+        "ReferenceError",
+        "SyntaxError",
+        "TypeError",
+        "URIError",
         # DOM
         "HTMLElement",
         "XMLElement",
@@ -82,7 +91,7 @@ module JsDuck
       @ext4_events = nil
       @meta_tag_paths = []
 
-      @version = "4.4.1"
+      @version = "4.6.2"
 
       # Customizing output
       @title = "Documentation - JSDuck"
@@ -100,7 +109,7 @@ module JsDuck
       @link_tpl = '<a href="#!/api/%c%-%m" rel="%c%-%m" class="docClass">%a</a>'
       # Note that we wrap image template inside <p> because {@img} often
       # appears inline within text, but that just looks ugly in HTML
-      @img_tpl = '<p><img src="%u" alt="%a"></p>'
+      @img_tpl = '<p><img src="%u" alt="%a" width="%w" height="%h"></p>'
       @export = nil
       @seo = false
       @eg_iframe = nil
@@ -108,6 +117,7 @@ module JsDuck
       @tests = false
       @comments_url = nil
       @comments_domain = nil
+      @ignore_html = {}
 
       # Debugging
       @root_dir = File.dirname(File.dirname(File.dirname(__FILE__)))
@@ -282,9 +292,11 @@ module JsDuck
         end
 
         opts.on('--welcome=PATH',
-          "HTML file with content for welcome page.",
+          "File with content for welcome page.",
           "",
-          "It should only contain the <body> part of a HTML page.",
+          "Either HTML or Markdown file with content for welcome page.",
+          "HTML file must only contain the <body> part of the page.",
+          "Markdown file must have a .md or .markdown extension.",
           "",
           "See also: https://github.com/senchalabs/jsduck/wiki/Welcome-page") do |path|
           @welcome = canonical(path)
@@ -436,7 +448,11 @@ module JsDuck
           "when used in type definitions or inherited from.",
           "",
           "Multiple classes can be given in comma-separated list,",
-          "or by using the option repeatedly.") do |classes|
+          "or by using the option repeatedly.",
+          "",
+          "The wildcard '*' can be used to match a set of classes",
+          "e.g. to ignore all classes of a particular namespace:",
+          "--external='Foo.*'") do |classes|
           @external_classes += classes
         end
 
@@ -488,8 +504,10 @@ module JsDuck
           "",
           "%u - URL from @img tag (e.g. 'some/path.png')",
           "%a - alt text for image",
+          "%w - width of image",
+          "%h - height of image",
           "",
-          "Defaults to: '<p><img src=\"%u\" alt=\"%a\"></p>'") do |tpl|
+          "Defaults to: '<p><img src=\"%u\" alt=\"%a\" width=\"%w\" height=\"%h\"></p>'") do |tpl|
           @img_tpl = tpl
         end
 
@@ -525,6 +543,21 @@ module JsDuck
           "This is a very Sencha Touch 2 docs specific option.",
           "Effects both normal- and inline-examples.") do
           @touch_examples_ui = true
+        end
+
+        opts.on('--ignore-html=TAG',
+          "Ignore a particular unclosed HTML tag.",
+          "",
+          "Normally all tags like <foo> that aren't followed at some",
+          "point with </foo> will get automatically closed by JSDuck",
+          "and a warning will be generated.  Except standard void tags",
+          "like <img> and <br>.  Use this option to specify additional",
+          "tags not requirering a closing tag.",
+          "",
+          "Useful for ignoring the ExtJS preprocessor directives",
+          "<locale> and <debug> which would otherwise be reported",
+          "as unclosed tags.") do |tag|
+          @ignore_html[tag] = true
         end
 
         opts.separator ""

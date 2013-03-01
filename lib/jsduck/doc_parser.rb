@@ -1,5 +1,6 @@
 require 'strscan'
 require 'jsduck/meta_tag_registry'
+require 'jsduck/logger'
 
 module JsDuck
 
@@ -28,7 +29,9 @@ module JsDuck
       @meta_tags = MetaTagRegistry.instance
     end
 
-    def parse(input)
+    def parse(input, filename="", linenr=0)
+      @filename = filename
+      @linenr = linenr
       @tags = []
       @input = StringScanner.new(purify(input))
       parse_loop
@@ -75,6 +78,11 @@ module JsDuck
 
     def add_tag(tag)
       @tags << @current_tag = {:tagname => tag, :doc => ""}
+    end
+
+    def remove_last_tag
+      @tags.pop
+      @current_tag = @tags.last
     end
 
     def parse_loop
@@ -141,16 +149,53 @@ module JsDuck
         elsif look(/@evented\b/)
           boolean_at_tag(/@evented/, :evented)
         elsif look(/@/)
-          match(/@/)
-          tag = @meta_tags[look(/\w+/)]
-          if tag
-            meta_at_tag(tag)
-          else
-            @current_tag[:doc] += "@"
-          end
+          other_at_tag
         elsif look(/[^@]/)
-          @current_tag[:doc] += match(/[^@]+/)
+          skip_to_next_at_tag
         end
+      end
+    end
+
+    # Skips until the beginning of next @tag.
+    #
+    # There must be space before the next @tag - this ensures that we
+    # don't detect tags inside "foo@example.com" or "{@link}".
+    #
+    # Also check that the @tag is not part of an indented code block -
+    # in which case we also ignore the tag.
+    def skip_to_next_at_tag
+      @current_tag[:doc] += match(/[^@]+/)
+
+      while look(/@/) && (!prev_char_is_whitespace? || indented_as_code?)
+        @current_tag[:doc] += match(/@+[^@]+/)
+      end
+    end
+
+    def prev_char_is_whitespace?
+      @current_tag[:doc][-1,1] =~ /\s/
+    end
+
+    def indented_as_code?
+      @current_tag[:doc] =~ /^ {4,}[^\n]*\z/
+    end
+
+    # Processes anything else beginning with @-sign.
+    #
+    # - When @ is not followed by any word chards, do nothing.
+    # - When it's one of the meta-tags, process it as such.
+    # - When it's something else, print a warning.
+    #
+    def other_at_tag
+      match(/@/)
+
+      name = look(/\w+/)
+      tag = @meta_tags[name]
+
+      if tag
+        meta_at_tag(tag)
+      elsif name
+        Logger.warn(:tag, "Unsupported tag: @#{name}", @filename, @linenr)
+        @current_tag[:doc] += "@"
       end
     end
 
@@ -302,6 +347,14 @@ module JsDuck
       add_tag(:override)
       maybe_ident_chain(:class)
       skip_white
+
+      # When @override not followed by class name, ignore the tag.
+      # That's because the current ext codebase has some methods
+      # tagged with @override to denote they override something.
+      # But that's not what @override is meant for in JSDuck.
+      unless @current_tag[:class]
+        remove_last_tag
+      end
     end
 
     # matches @type {type}  or  @type type
@@ -453,7 +506,7 @@ module JsDuck
     # roll back to beginning and simply grab anything up to closing "]".
     def default_value
       start_pos = @input.pos
-      value = parse_balanced(/\[/, /\]/, /[^\[\]]*/)
+      value = parse_balanced(/\[/, /\]/, /[^\[\]'"]*/)
       if look(/\]/)
         value
       else
@@ -466,7 +519,7 @@ module JsDuck
     def typedef
       match(/\{/)
 
-      name = parse_balanced(/\{/, /\}/, /[^{}]*/)
+      name = parse_balanced(/\{/, /\}/, /[^{}'"]*/)
 
       if name =~ /=$/
         name = name.chop
@@ -485,16 +538,35 @@ module JsDuck
     #
     # @param re_open  The beginning brace regex
     # @param re_close The closing brace regex
-    # @param re_rest  Regex to match text without any braces
+    # @param re_rest  Regex to match text without any braces and strings
     def parse_balanced(re_open, re_close, re_rest)
-      result = match(re_rest)
+      result = parse_with_strings(re_rest)
       while look(re_open)
         result += match(re_open)
         result += parse_balanced(re_open, re_close, re_rest)
         result += match(re_close)
+        result += parse_with_strings(re_rest)
+      end
+      result
+    end
+
+    # Helper for parse_balanced to parse rest of the text between
+    # braces, taking account the strings which might occur there.
+    def parse_with_strings(re_rest)
+      result = match(re_rest)
+      while look(/['"]/)
+        result += parse_string('"') if look(/"/)
+        result += parse_string("'") if look(/'/)
         result += match(re_rest)
       end
       result
+    end
+
+    # Parses "..." or '...' including the escape sequence \' or '\"
+    def parse_string(quote)
+      re_quote = Regexp.new(quote)
+      re_rest = Regexp.new("(?:[^"+quote+"\\\\]|\\\\.)*")
+      match(re_quote) + match(re_rest) + (match(re_quote) || "")
     end
 
     # matches <ident_chain> <ident_chain> ... until line end

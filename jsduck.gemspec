@@ -2,8 +2,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.5"
 
   s.name = 'ckeditor-jsduck'
-  s.version = '1.0.0'
-  s.date = '2012-12-26'
+  s.version = '1.1.0'
+  s.date = '2012-03-01'
   s.summary = "Simple JavaScript Duckumentation generator (customized for CKEditor)"
   s.description = "Documentation generator for Sencha JS frameworks"
   s.homepage = "https://github.com/senchalabs/jsduck"
@@ -22,7 +22,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'rdiscount'
   s.add_dependency 'json'
   s.add_dependency 'parallel'
-  s.add_dependency 'therubyracer'
+  s.add_dependency 'therubyracer', '>= 0.10.0', '< 0.11.0'
+  s.add_dependency 'dimensions'
 
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'rake'

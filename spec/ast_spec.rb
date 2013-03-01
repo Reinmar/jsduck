@@ -24,6 +24,14 @@ describe JsDuck::Ast do
       detect("/** */ var MyClass = function() {}").should == :class
     end
 
+    it "object literal assignment to uppercase name" do
+      detect("/** */ MyClass = {};").should == :class
+    end
+
+    it "doc-comment right before object literal" do
+      detect("MyClass = makeClass( /** */ {} );").should == :class
+    end
+
     it "Ext.extend()" do
       detect("/** */ MyClass = Ext.extend(Your.Class, {  });").should == :class
     end
@@ -82,8 +90,12 @@ describe JsDuck::Ast do
       detect("/** */ var foo = Ext.emptyFn").should == :method
     end
 
-    it "anonymous function" do
+    it "anonymous function as expression" do
       detect("/** */ (function(){})").should == :method
+    end
+
+    it "anonymous function as parameter" do
+      detect("doSomething('blah', /** */ function(){});").should == :method
     end
 
     it "object property initialized with function" do

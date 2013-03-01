@@ -257,9 +257,10 @@ module JsDuck
     end
 
     def detect_return(doc_map)
+      has_return_tag = !!extract(doc_map, :return)
       ret = extract(doc_map, :return) || {}
       return {
-        :type => ret[:type] || "undefined",
+        :type => ret[:type] || (has_return_tag ? "Object" : "undefined"),
         :name => ret[:name] || "return",
         :doc => ret[:doc] || "",
         :properties => doc_map[:return] ? detect_subproperties(:return, doc_map[:return]) : []
@@ -292,7 +293,7 @@ module JsDuck
     # Combines :doc-s of most tags
     # Ignores tags that have doc comment themselves and subproperty tags
     def detect_doc(docs)
-      ignore_tags = [:param, :return, :meta]
+      ignore_tags = [:param, :return, :throws, :meta]
       doc_tags = docs.find_all { |tag| !ignore_tags.include?(tag[:tagname]) && !subproperty?(tag) }
       doc_tags.map { |tag| tag[:doc] }.compact.join(" ")
     end
